@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js – The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<style>
+			ul li{
+				font-size: 60%;
+			}
+		</style>
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>JavaScript基础知识（下）</h2>
+				</section>
+				<section>
+					<section>
+						<h2>作用域与闭包</h2>
+					</section>
+					<section>
+						<h3>作用域</h3>
+						<ul>
+							<li>作用域可以看做一套规则，这套规则用来管理引擎如何在当前作用域以及嵌套的子作用域中根据标识符名称进行变量查找。</li>
+						</ul>
+					</section>
+					<section class="present">
+						<h3 style="text-transform:inherit">eval</h3>
+					  <ul>
+							<li><p>作用域一般是由写代码期间函数所声明的位置来定义的，但是有时候可以在运行的时候来修改。</p></li>
+							<li>eval(...)函数可以接受一个字符串为参数，并将其中的内容视为好像在书写的时候就存在于程序中这个位置的代码。</li>
+							<li>在严格模式的程序中，eval在运行的时候有自己的词法作用域，意味着其中的声明无法修改所在的作用域。</li>
+							<li>类似的还有setTimeout(/*代码字符串*/),with, new Function(/*代码字符串*/)等。</li>
+							<li>在程序中动态生成代码的使用场景非常罕见，因为它所带来的好处无法抵消性能上的损失。</li>
+						</ul>
+					</section>
+					<section>闭包</section>
+				</section>
+				<section>
+					<section>this</section>
+				</section>
+				<section>
+					<section>Ajax和回调</section>
+					<section>作用域</section>
+					<section>闭包</section>
+				</section>
+				<section>事件</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
