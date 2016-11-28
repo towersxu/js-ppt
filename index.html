@@ -1,5 +1,6 @@
 <!doctype html>
-<html>
+<html lang="en">
+
 	<head>
 		<meta charset="utf-8">
 
@@ -15,11 +16,10 @@
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/black.css" id="theme">
-		<style>
-			ul li{
-				font-size: 60%;
-			}
-		</style>
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
 		<!-- Printing and PDF exports -->
 		<script>
 			var link = document.createElement( 'link' );
@@ -28,63 +28,149 @@
 			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
 		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
 	</head>
+
 	<body>
+
 		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h2>JavaScript基础知识（下）</h2>
+					<h3 style="text-transform:inherit">JavaScript基础知识（下）</h3>
+					<ul>
+						<li><a href="">作用域与闭包</a></li>
+						<li><a href="">This解析</a></li>
+						<li><a href="">事件</a></li>
+						<li><a href="">AJAX和回调</a></li>
+					</ul>
 				</section>
+
 				<section>
 					<section>
 						<h2>作用域与闭包</h2>
 					</section>
 					<section>
-						<h3>作用域</h3>
+						<h3>词法作用域</h3>
 						<ul>
-							<li>作用域可以看做一套规则，这套规则用来管理引擎如何在当前作用域以及嵌套的子作用域中根据标识符名称进行变量查找。</li>
+							<p>词法作用域可以看做一套规则，这套规则用来管理引擎如何在当前作用域以及嵌套的子作用域中根据标识符名称进行变量查找。</p>
 						</ul>
 					</section>
-					<section class="present">
+					<section>
 						<h3 style="text-transform:inherit">eval</h3>
-					  <ul>
-							<li><p>作用域一般是由写代码期间函数所声明的位置来定义的，但是有时候可以在运行的时候来修改。</p></li>
-							<li>eval(...)函数可以接受一个字符串为参数，并将其中的内容视为好像在书写的时候就存在于程序中这个位置的代码。</li>
-							<li>在严格模式的程序中，eval在运行的时候有自己的词法作用域，意味着其中的声明无法修改所在的作用域。</li>
-							<li>类似的还有setTimeout(/*代码字符串*/),with, new Function(/*代码字符串*/)等。</li>
-							<li>在程序中动态生成代码的使用场景非常罕见，因为它所带来的好处无法抵消性能上的损失。</li>
-						</ul>
+					  <ol>
+							<small><li>词法作用域一般是由写代码期间函数所声明的位置来定义的，但是有时候可以在运行的时候来修改。</li></small>
+							<small><li>eval(...)函数可以接受一个字符串为参数，并将其中的内容视为好像在书写的时候就存在于程序中这个位置的代码。</li></small>
+							<small><li>在严格模式的程序中，eval在运行的时候有自己的词法作用域，意味着其中的声明无法修改所在的作用域。</li></small>
+							<small><li>类似的还有setTimeout(/*代码字符串*/),with, new Function(/*代码字符串*/)等。</li></small>
+							<small><li>在程序中动态生成代码的使用场景非常罕见，因为它所带来的好处无法抵消性能上的损失。</li></small>
+						</ol>
 					</section>
-					<section>闭包</section>
+					<section>
+						<h3>动态作用域</h3>
+						<small>词法作用域是在写代码或者说定义时确定的，而动态作用域是在运行时确定的（this也是！）。词法作用域关注函数在何处声明，而动态作用域关注函数从何处调用。</small>
+					</section>
+					<section>
+						<h3>闭包</h3>
+						<p>当函数可以记住并访问自身所在的词法作用域时，就产生了闭包，即使函数在当前词法作用域之外执行。</p>
+						<p>无论通过何种手端将内部函数传递到所在的词法作用域以外，它都会持有对原始定义作用域的引用，无论在何处执行这个函数都会使用闭包。</p>
+					</section>
 				</section>
 				<section>
-					<section>this</section>
+					<section>
+						<h3 style="text-transform:inherit">this</h3>
+						<ol>
+							<small><li>由new调用？绑定到新创建的对象。</li></small>
+							<small><li>由call或者apply（或者bind）调用？绑定到指定的对象</li></small>
+							<small><li>由上下文对象调用？绑定到那个上下文对象。</li></small>
+							<small><li>默认：在严格模式下绑定到undefined,否则绑定到全局对象</li></small>
+							<small><li>ES6中的箭头函数会继承外层函数调用的this绑定。</li></small>
+						</ol>
+					</section>
 				</section>
 				<section>
-					<section>Ajax和回调</section>
-					<section>作用域</section>
-					<section>闭包</section>
+					<section>
+						<h3 style="text-transform:inherit">Ajax和回调</h3>
+						<ol>
+							<li>XMLHttpRequest 对象</li>
+							<li>JSONP</li>
+							<li>函数的回调</li>
+						</ol>
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">HTTP请求组成</h3>
+						<ol>
+							<li>HTTP请求方法</li>
+							<li>HTTP请求的URL</li>
+							<li>请求头</li>
+							<li>请求主体</li>
+						</ol>
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">HTTP响应组成</h3>
+						<ol>
+							<li>状态码</li>
+							<li>响应头</li>
+							<li>响应主体</li>
+						</ol>
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">JSONP的原理</h3>
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">函数的回调</h3>
+					</section>
 				</section>
-				<section>事件</section>
+				<section>
+					<section>
+						<h3 style="text-transform:inherit">事件</h3>
+					</section>
+					<section>
+						<img height="650" src="./demo/event.png">
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">addEventListener和attachEvent</h3>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h3 style="text-transform:inherit">谢谢</h3>
+					</section>
+				</section>
 			</div>
+
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.js"></script>
 
 		<script>
+
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
+				controls: true,
+				progress: true,
 				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
 
 				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
 				]
 			});
+
 		</script>
+
 	</body>
 </html>
