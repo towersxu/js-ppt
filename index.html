@@ -46,7 +46,7 @@
 						<li><a href="">作用域与闭包</a></li>
 						<li><a href="">This解析</a></li>
 						<li><a href="">事件</a></li>
-						<li><a href="">AJAX和回调</a></li>
+						<li><a href="">AJAX</a></li>
 					</ul>
 				</section>
 
@@ -55,13 +55,59 @@
 						<h2>作用域与闭包</h2>
 					</section>
 					<section>
-						<h3>词法作用域</h3>
+						<h3>词法作用域(静态作用域)</h3>
 						<ul>
-							<p>词法作用域可以看做一套规则，这套规则用来管理引擎如何在当前作用域以及嵌套的子作用域中根据标识符名称进行变量查找。</p>
+							<p>词法作用域可以看做一套规则，这套规则用来管理引擎如何在当前作用域以及嵌套的子作用域中根据标识符名称进行变量查找。
+								也就是说词法作用域是由你在写代码时将变量和块作用域写在哪里来决定的。</p>
 						</ul>
 					</section>
 					<section>
-						<h3 style="text-transform:inherit">eval</h3>
+						<img src="./image/fig2.png">
+					</section>
+					<section>
+						<p style="text-align:left;">作用域包含了一系列的“气泡”，每一个都可以作为容器，其中包含了标识符（变量，函数）的定义。这些气泡互相嵌套并且整齐地排列成蜂窝型，排列的结构是在写代码时定义的。</p>
+					</section>
+					<section data-markdown>
+							立即执行函数表达式（IIFE）
+
+							```javascript
+							var a = 2;
+							(function(){
+								var a = 3;
+								console.log(a)  // 3
+							})()
+							console.log(a)  // 2
+							```
+
+								!function(){}()
+
+								(function(){}())
+
+								(function(globa){}(window))
+
+					</section>
+					<section data-markdown>
+						UMD模块（Universal Module Definition）
+
+						```javascript
+							(function (window, factory) {
+								if (typeof exports === 'object') {
+
+										module.exports = factory();
+								} else if (typeof define === 'function' && define.amd) {
+
+										define(factory);
+								} else {
+
+										window.eventUtil = factory();
+								}
+							})(this, function () {
+								//module ...
+							});
+						```
+					</section>
+					<section>
+						<h3 style="text-transform:inherit"><small>运行时修改作用域</small></h3>
 					  <ol>
 							<small><li>词法作用域一般是由写代码期间函数所声明的位置来定义的，但是有时候可以在运行的时候来修改。</li></small>
 							<small><li>eval(...)函数可以接受一个字符串为参数，并将其中的内容视为好像在书写的时候就存在于程序中这个位置的代码。</li></small>
@@ -71,35 +117,240 @@
 						</ol>
 					</section>
 					<section>
-						<h3>动态作用域</h3>
-						<small>词法作用域是在写代码或者说定义时确定的，而动态作用域是在运行时确定的（this也是！）。词法作用域关注函数在何处声明，而动态作用域关注函数从何处调用。</small>
-					</section>
-					<section>
 						<h3>闭包</h3>
-						<p>当函数可以记住并访问自身所在的词法作用域时，就产生了闭包，即使函数在当前词法作用域之外执行。</p>
-						<p>无论通过何种手端将内部函数传递到所在的词法作用域以外，它都会持有对原始定义作用域的引用，无论在何处执行这个函数都会使用闭包。</p>
+						<p style="text-align:left;">当函数可以记住并访问自身所在的词法作用域时，就产生了闭包，即使函数在当前词法作用域之外执行。</p>
+						<p style="text-align:left;">无论通过何种手端将内部函数传递到所在的词法作用域以外，它都会持有对原始定义作用域的引用，无论在何处执行这个函数都会使用闭包。</p>
+					</section>
+					<section data-markdown>
+						```javascript
+							function foo() {
+								var a = 2;
+								function bar() {
+									console.log(a)
+								}
+								return bar;
+							}
+
+							var baz = foo();
+							baz(); // 2
+						```
+
+							函数bar()的作用域能够访问foo()的内部作用域。
+							然后我们将bar()函数本身当做一个值类型进行传递。（注意）
+							在foo()执行后，bar被当做返回值赋值给baz，然后执行baz()。
+							这时就是bar()在自己定义的词法作用域以外的地方执行了。
+							一般情况下一个函数执行后，会被垃圾回收器释放不再使用的内存空间。
+							但是由于bar()声明在foo()内部，bar()依然后有对foo()作用域的引用。
+							这个引用就叫做闭包。
+							在异步任务中使用回调函数也就是使用闭包。
+					</section>
+					<section data-markdown>
+						```javascript
+							for (var i = 0; i <= 5; i++) {
+								setTimeout(function(){
+									console.log(i) // 输出5个6
+								},1000)
+							}
+						```
+							循环终止条件是i不再<=5,所以这个时候i为6
+							这5个函数是在循环中分别定义的，但是它们都被封装在一个共享的全局作用域中。
+							因此实际上只有一个i.等同于：
+
+						```javascript
+							var i;
+							for (i = 0; i <= 5; i++) {
+								setTimeout(function(){
+									console.log(i) // 输出5个6
+								},1000)
+							}
+						```
+							提示：在ES6里面改成let就可以实现目的。
+					</section>
+
+					<section data-markdown>
+						```javascript
+						for (var i = 0; i <= 5; i++) {
+							(function(){
+								var j = i; // 如果不写这个，IIFE只会产生一个空的作用域。
+								setTimeout(function(){
+									console.log(j)
+								}, 1000)
+							})();
+						}
+						```
+
+							IIFE会为每个迭代都生成一个新的作用域，
+							使得延迟函数的回调可以将新的作用域封闭在每个迭代内部。
+							每个迭代中都会含有一个具有正确值的变量供我们访问。
+							var j = i;的作用是：
+							立即执行函数，将i此时的值赋值给j.
+
+					</section>
+
+					<section  data-markdown>
+						模块
+
+						```javascript
+							var moduleName = (function(){
+								function a() {
+
+								}
+								function b() {
+
+								}
+								return {
+									a: a,
+									b: b
+								}
+							}())
+							moduleName.a()
+						```
+							IIFE + 闭包 = 模块（注意，只是这里才是这样。模块还有很多种实现方式。）
+
+							模块特征：
+							1).为创建内部作用域而调用了一个包装函数；
+							2).包装函数返回值至少包含一个对内部函数的引用。
+							3).这样就会创建涵盖整个包装函数内部作用域的闭包。
 					</section>
 				</section>
 				<section>
 					<section>
 						<h3 style="text-transform:inherit">this</h3>
-						<ol>
-							<small><li>由new调用？绑定到新创建的对象。</li></small>
-							<small><li>由call或者apply（或者bind）调用？绑定到指定的对象</li></small>
-							<small><li>由上下文对象调用？绑定到那个上下文对象。</li></small>
-							<small><li>默认：在严格模式下绑定到undefined,否则绑定到全局对象</li></small>
-							<small><li>ES6中的箭头函数会继承外层函数调用的this绑定。</li></small>
-						</ol>
+						<p style="text-align:left;"><small style="text-align:left;">this提供一种方式来隐式“传递”一个对象引用，因此可以将API设计得更加简洁并且易于复用。</small></p>
+						<p style="text-align:left;"><small>this实际上是在函数被调用时发生绑定的，它指向什么完全取决于函数在哪里被调用。</small></p>
 					</section>
+					<section data-markdown>
+						this的第一种使用方式（默认绑定）
+						```javascript
+							function foo(num) {
+								console.log(num)
+								this.count++;
+							}
+							foo.count = 0;
+							var i;
+							for (i = 0; i < 3; i++) {
+								foo(i)
+							}
+							// 0
+							// 1
+							// 2
+							console.log(foo.count); // 0
+						```
+							1.this.count指向的undefined
+							2.foo.count在函数内部没有调用到
+							3.this.count改成foo.count可以实现目的
+							4.在严格模式下绑定到undefined,否则绑定到全局对象
+					</section>
+					<section data-markdown>
+						this的第二种使用方式（显示绑定）
+						```javascript
+							function foo(num) {
+								console.log(num); // 0, 1, 2
+								this.count++;
+							}
+							foo.count = 0;
+							var i;
+							for (i = 0; i < 3; i++) {
+								foo.call(foo, i)
+							}
+							console.log(foo.count); // 3
+						```
+							1.使用call()函数强制将foo()内部的this指向foo本身
+							2.也可以是用apply()。
+					</section>
+					<section data-markdown>
+						this的第三种使用方式（隐式绑定）
+						```javascript
+							function foo(num) {
+								console.log(num); // 0, 1, 2
+								this.count++;
+							}
+							var obj = {
+								count: 10,
+								foo: foo
+							}
+							for (i = 0; i < 3; i++) {
+								obj.foo()
+							}
+							console.log(foo.count); // 13
+						```
+							1.使用call()函数强制将foo()内部的this指向foo本身
+							2.也可以是用appl()。
+							3.注意绑定丢失。
+					</section>
+					<section data-markdown>
+						this的第四种使用方式（new绑定）
+						```javascript
+							function foo(a) {
+								this.count = a;
+							}
+							var obj = new foo(1);
+							var obj1 = new foo(2);
+							console.log(obj.count); // 1
+							console.log(obj.count); // 2
+						```
+							1.在JavaScript中，构造函数只是一些使用new操作符时被调用的函数。
+							2.它们并不会属于某个类，也不会实例化一个类。
+							3.它只是一个被new调用的普通函数而已。
+					</section>
+					<section data-markdown>
+						this绑定的优先级
+
+							1.new绑定
+							2.通过call和apply调用的显示绑定
+							3.隐私绑定
+							4.默认绑定
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">总结</h3>
+						<ul style="list-style:none">
+							<li><small>由call或者apply（或者bind）调用？绑定到指定的对象。</small></li>
+
+							<li><small>由new调用？绑定到新创建的对象。</small></li>
+
+							<li><small>由上下文对象调用？绑定到那个上下文对象。</small></li>
+
+							<li><small>默认：在严格模式下绑定到undefined,否则绑定到全局对象</small></li>
+
+							<li><small>ES6中的箭头函数会继承外层函数调用的this绑定。</small></li>
+						</ul>
+					</section>
+					<!-- <section>
+						<h3>动态作用域</h3>
+						<p style="text-align:left;">词法作用域是在写代码或者说定义时确定的，而动态作用域是在运行时确定的（this也是！）。词法作用域关注函数在何处声明，而动态作用域关注函数从何处调用。</p>
+						<p style="text-align:left;">需要明确的是，事实上JavaScript并不具有动态作用域。它只有词法作用域，简单明了。但是this机制某种程度上很像动态作用域。</p>
+						<p style="text-align:left;">动态作用域并不关心函数和作用域是如何声明以及在何处声明的，只关心它们从何处调用。换句话说，作用域链是基于调用栈的，而不是代码中的作用域嵌套</p>
+					</section> -->
 				</section>
 				<section>
 					<section>
-						<h3 style="text-transform:inherit">Ajax和回调</h3>
+						<h3 style="text-transform:inherit">Ajax</h3>
 						<ol>
 							<li>XMLHttpRequest 对象</li>
 							<li>JSONP</li>
-							<li>函数的回调</li>
 						</ol>
+					</section>
+					<section data-markdown>
+						XMLHttpRequest 对象
+
+						```javascript
+						// 创建 XMLHttpRequest 对象的语法：
+						if (window.XMLHttpRequest) {
+							xmlHttp=new XMLHttpRequest();
+						} else if (window.ActiveXObject) {
+							 // 老版本的 Internet Explorer （IE5 和 IE6）使用 ActiveX 对象.
+							xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+						}
+						xmlHttp.open("GET",url);
+						xmlHttp.send(null);
+						xmlHttp.onreadystatechange = function(){
+							if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+								// 注意上面的状态码200.
+								// POST这样写不好，因为成功返回的可能不是200而是201
+								console.log('success');
+						  }
+						}
+						```
 					</section>
 					<section>
 						<h3 style="text-transform:inherit">HTTP请求组成</h3>
@@ -109,6 +360,10 @@
 							<li>请求头</li>
 							<li>请求主体</li>
 						</ol>
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">HTTP请求组成</h3>
+
 					</section>
 					<section>
 						<h3 style="text-transform:inherit">HTTP响应组成</h3>
