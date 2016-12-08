@@ -65,7 +65,24 @@
 						<img src="./image/fig2.png">
 					</section>
 					<section>
-						<p style="text-align:left;">作用域包含了一系列的“气泡”，每一个都可以作为容器，其中包含了标识符（变量，函数）的定义。这些气泡互相嵌套并且整齐地排列成蜂窝型，排列的结构是在写代码时定义的。</p>
+						<p style="text-align:left;">作用域包含了一系列的“气泡”，每一个都可以作为容器，其中包含了标识符（变量，函数）的定义。
+							这些气泡互相嵌套并且整齐地排列成蜂窝型，排列的结构是在写代码时定义的。</p>
+					</section>
+					<section>
+						<h3 style="text-transform:inherit"><small>运行时修改作用域</small></h3>
+					  <ol>
+							<small><li>词法作用域一般是由写代码期间函数所声明的位置来定义的，但是有时候可以在运行的时候来修改。</li></small>
+							<small><li>eval(...)函数可以接受一个字符串为参数，并将其中的内容视为好像在书写的时候就存在于程序中这个位置的代码。</li></small>
+							<small><li>在严格模式的程序中，eval在运行的时候有自己的词法作用域，意味着其中的声明无法修改所在的作用域。</li></small>
+							<small><li>类似的还有setTimeout(/*代码字符串*/),with, new Function(/*代码字符串*/)等。</li></small>
+							<small><li>在程序中动态生成代码的使用场景非常罕见，因为它所带来的好处无法抵消性能上的损失。</li></small>
+						</ol>
+					</section>
+					<section>
+						<h3 style="text-transform:inherit">eval()和with</h3>
+						<p style="text-align:left;">JavaScript中有两个机制可以“欺骗”词法作用域：eval()和with。前者可以对一段包含一个或多个声明的代码字符串进行演算，并借此来修改已经存在的词法作用域（在运行时）。
+							后者本质上是通过将一个对象的引用当作作用域来处理，将对象的属性当作作用域中的标识符来处理，从而创建了一个新的词法作用域（同样是在运行时）。这两个机制都将导致代码运行变慢，不要使用它们。
+						</p>
 					</section>
 					<section data-markdown>
 							立即执行函数表达式（IIFE）
@@ -85,36 +102,6 @@
 
 								(function(globa){}(window))
 
-					</section>
-					<section data-markdown>
-						UMD模块（Universal Module Definition）
-
-						```javascript
-							(function (window, factory) {
-								if (typeof exports === 'object') {
-
-										module.exports = factory();
-								} else if (typeof define === 'function' && define.amd) {
-
-										define(factory);
-								} else {
-
-										window.eventUtil = factory();
-								}
-							})(this, function () {
-								//module ...
-							});
-						```
-					</section>
-					<section>
-						<h3 style="text-transform:inherit"><small>运行时修改作用域</small></h3>
-					  <ol>
-							<small><li>词法作用域一般是由写代码期间函数所声明的位置来定义的，但是有时候可以在运行的时候来修改。</li></small>
-							<small><li>eval(...)函数可以接受一个字符串为参数，并将其中的内容视为好像在书写的时候就存在于程序中这个位置的代码。</li></small>
-							<small><li>在严格模式的程序中，eval在运行的时候有自己的词法作用域，意味着其中的声明无法修改所在的作用域。</li></small>
-							<small><li>类似的还有setTimeout(/*代码字符串*/),with, new Function(/*代码字符串*/)等。</li></small>
-							<small><li>在程序中动态生成代码的使用场景非常罕见，因为它所带来的好处无法抵消性能上的损失。</li></small>
-						</ol>
 					</section>
 					<section>
 						<h3>闭包</h3>
@@ -142,51 +129,75 @@
 							一般情况下一个函数执行后，会被垃圾回收器释放不再使用的内存空间。
 							但是由于bar()声明在foo()内部，bar()依然后有对foo()作用域的引用。
 							这个引用就叫做闭包。
+
 							在异步任务中使用回调函数也就是使用闭包。
 					</section>
-					<section data-markdown>
-						```javascript
-							for (var i = 0; i <= 5; i++) {
-								setTimeout(function(){
-									console.log(i) // 输出5个6
-								},1000)
-							}
-						```
+					<section>
+						<section data-markdown>
+							```javascript
+								for (var i = 0; i <= 5; i++) {
+									setTimeout(function(){
+										console.log(i) // 输出5个6
+									},1000)
+								}
+							```
+						</section>
+						<section data-markdown class="fragment fade-up">
+							```javascript
 							循环终止条件是i不再<=5,所以这个时候i为6
 							这5个函数是在循环中分别定义的，但是它们都被封装在一个共享的全局作用域中。
 							因此实际上只有一个i.等同于：
 
-						```javascript
 							var i;
 							for (i = 0; i <= 5; i++) {
 								setTimeout(function(){
 									console.log(i) // 输出5个6
 								},1000)
 							}
-						```
-							提示：在ES6里面改成let就可以实现目的。
+							```
+						</section>
+						<p class="fragment">
+						<small>提示：在ES6里面改成let就可以实现目的。</small>
+						<br/>
+						<small>下面来使用IIFE产生一个新的作用域来实现。</small>
+						</p>
 					</section>
 
-					<section data-markdown>
+					<section  data-markdown>
+						<section>
 						```javascript
-						for (var i = 0; i <= 5; i++) {
-							(function(){
-								var j = i; // 如果不写这个，IIFE只会产生一个空的作用域。
-								setTimeout(function(){
-									console.log(j)
-								}, 1000)
-							})();
-						}
+							for (var i = 0; i <= 5; i++) {
+								(function(){
+									var j = i; // 如果不写这个，IIFE只会产生一个空的作用域。
+									setTimeout(function(){
+										console.log(j)
+									}, 1000)
+								})();
+							}
 						```
+						</section>
 
+						<p>
 							IIFE会为每个迭代都生成一个新的作用域，
 							使得延迟函数的回调可以将新的作用域封闭在每个迭代内部。
 							每个迭代中都会含有一个具有正确值的变量供我们访问。
 							var j = i;的作用是：
 							立即执行函数，将i此时的值赋值给j.
+							也可以改成先的这种形式
+						</p>
 
+						<section  data-markdown class="fragment">
+						```javascript
+						for (var i = 0; i <= 5; i++) {
+							(function(i){
+								setTimeout(function(){
+									console.log(i)
+								}, 1000)
+							})(i);
+						}
+						```
+						</section>
 					</section>
-
 					<section  data-markdown>
 						模块
 
@@ -211,6 +222,26 @@
 							1).为创建内部作用域而调用了一个包装函数；
 							2).包装函数返回值至少包含一个对内部函数的引用。
 							3).这样就会创建涵盖整个包装函数内部作用域的闭包。
+					</section>
+					<section data-markdown>
+						UMD模块（Universal Module Definition）
+
+						```javascript
+							(function (window, factory) {
+								if (typeof exports === 'object') {
+
+										module.exports = factory();
+								} else if (typeof define === 'function' && define.amd) {
+
+										define(factory);
+								} else {
+
+										window.eventUtil = factory();
+								}
+							})(this, function () {
+								//module ...
+							});
+						```
 					</section>
 				</section>
 				<section>
@@ -259,6 +290,45 @@
 							2.也可以是用apply()。
 					</section>
 					<section data-markdown>
+						```javascript
+						call方法:
+						语法：call([thisObj[,arg1[, arg2[,[,.argN]]]]])
+						定义：调用一个对象的一个方法，以另一个对象替换当前对象。
+						说明：
+						call 方法可以用来代替另一个对象调用一个方法。
+						call 方法可将一个函数的对象上下文从初始的上下文改变为由 thisObj 指定的新对象。
+						如果没有提供 thisObj 参数，那么 Global 对象被用作 thisObj。
+
+						apply方法：
+						语法：apply([thisObj[,argArray]])
+						定义：应用某一对象的一个方法，用另一个对象替换当前对象。
+						说明：
+						如果 argArray 不是一个有效的数组或者不是 arguments 对象，
+						那么将导致一个 TypeError。
+						如果没有提供 argArray 和 thisObj 任何一个参数，
+						那么 Global 对象将被用作 thisObj， 并且无法被传递任何参数。
+						```
+					</section>
+					<section data-markdown>
+						```javascript
+							function A(){
+								var fn = arguments[0]
+								var a = Array.prototype.slice.call(arguments,1)
+								fn.apply(null, a)
+							}
+
+							A(function(a,b){
+								console.log(a+b) // 5
+							},2,3)
+
+							A(function(a){
+								console.log(a) // 2
+							},2)
+						```
+
+					</section>
+
+					<section data-markdown>
 						this的第三种使用方式（隐式绑定）
 						```javascript
 							function foo(num) {
@@ -272,11 +342,9 @@
 							for (i = 0; i < 3; i++) {
 								obj.foo()
 							}
-							console.log(foo.count); // 13
+							console.log(obj.count); // 13
 						```
-							1.使用call()函数强制将foo()内部的this指向foo本身
-							2.也可以是用appl()。
-							3.注意绑定丢失。
+							this指向调用这个方法的对象。
 					</section>
 					<section data-markdown>
 						this的第四种使用方式（new绑定）
@@ -287,7 +355,7 @@
 							var obj = new foo(1);
 							var obj1 = new foo(2);
 							console.log(obj.count); // 1
-							console.log(obj.count); // 2
+							console.log(obj1.count); // 2
 						```
 							1.在JavaScript中，构造函数只是一些使用new操作符时被调用的函数。
 							2.它们并不会属于某个类，也不会实例化一个类。
@@ -312,7 +380,7 @@
 
 							<li><small>默认：在严格模式下绑定到undefined,否则绑定到全局对象</small></li>
 
-							<li><small>ES6中的箭头函数会继承外层函数调用的this绑定。</small></li>
+							<li><small>另外：ES6中的箭头函数会继承外层函数调用的this绑定。</small></li>
 						</ul>
 					</section>
 					<!-- <section>
@@ -321,6 +389,20 @@
 						<p style="text-align:left;">需要明确的是，事实上JavaScript并不具有动态作用域。它只有词法作用域，简单明了。但是this机制某种程度上很像动态作用域。</p>
 						<p style="text-align:left;">动态作用域并不关心函数和作用域是如何声明以及在何处声明的，只关心它们从何处调用。换句话说，作用域链是基于调用栈的，而不是代码中的作用域嵌套</p>
 					</section> -->
+					<section data-markdown>
+						原型
+						```javascript
+						function B(){
+						  this.name = 'b'
+						}
+						B.prototype = {
+						  grades: "小学"
+						}
+						var b = new B()
+						console.log(b.__proto__ == B.prototype) // true
+						console.log(b.grades) // 小学
+						```
+					</section>
 				</section>
 				<section>
 					<section>
@@ -361,9 +443,20 @@
 							<li>请求主体</li>
 						</ol>
 					</section>
-					<section>
-						<h3 style="text-transform:inherit">HTTP请求组成</h3>
+					<section data-markdown>
+						HTTP请求方法
 
+						<ol>
+							<li>GET:向特定的资源发出请求。</li>
+							<li>POST:用于发送包含用户提交数据的请求</li>
+							<li>PUT:请求服务器存储一个资源，并用Request-URI作为其标识。</li>
+							<li>DELETE:请求服务器删除由Request-URI所标识的资源。</li>
+							<li>OPTIONS:请求查询服务器的性能，或查询与资源相关的选项和需求。</li>
+							<li>HEAD:请求获取由Request-URI所标识的资源的响应消息报头。</li>
+							<li>TRACE:请求服务器回显其收到的请求信息，该方法主要用于HTTP请求的测试或诊断。</li>
+							<li>CONNECT:CONNECT方法是HTTP/1.1协议预留的，能够将连接改为管道方式的代理服务器。
+								通常用于SSL加密服务器的链接与非加密的HTTP代理服务器的通信。</li>
+						</ol>
 					</section>
 					<section>
 						<h3 style="text-transform:inherit">HTTP响应组成</h3>
@@ -373,8 +466,48 @@
 							<li>响应主体</li>
 						</ol>
 					</section>
-					<section>
-						<h3 style="text-transform:inherit">JSONP的原理</h3>
+					<section data-markdown>
+						状态码分类
+
+						<ol>
+							<li>1XX:已定义范围“100-101”，信息提示</li>
+							<li>2XX:已定义范围“200-206”，成功</li>
+							<li>3XX:已定义范围“300-305”，重定向。</li>
+							<li>4XX:已定义范围“400-415”，客户端错误</li>
+							<li>5XX:已定义范围“500-505”，服务器错误</li>
+							<li>常用状态码：</li>
+							<li>301:请求的URL已移走。Response中应该包含一个Location URL,
+								 说明资源现在所处的位置</li>
+							<li>302:与状态码301类似。但这里的移除是临时的。
+								客户端会使用Location中给出的URL，重新发送新的HTTP request</li>
+							<li>304:客户的缓存资源是最新的， 要客户端使用缓存</li>
+							<li>400:告诉客户端，它发送了一个错误的请求</li>
+							<li>401:需要客户端对自己认证</li>
+							<li>403:请求被服务器拒绝了</li>
+							<li>404:404，500：500</li>
+							<li>502:代理使用的服务器遇到了上游的无效响应.重启的时候</li>
+						</ol>
+					</section>
+					<section data-markdown>
+						JSONP的原理
+
+						```javascript
+							var getJSONP = function(url, callback){
+								var name = 'aaa'
+								window[name] = callback;
+								var hm = document.createElement('script')
+								hm.src = url + '?callback='+name
+								var s = document.getElementsByTagName('body')[0]
+								s.appendChild(hm)
+							}
+							getJSONP('http://api.asilu.com/weather/',function(res){
+								console.log(res)
+							})
+
+							就是利用script标签没有跨域限制的“漏洞”来达到与第三方通讯的目的。
+							当需要通讯时，本站脚本创建一个script元素，地址指向第三方的API网址
+
+						```
 					</section>
 					<section>
 						<h3 style="text-transform:inherit">函数的回调</h3>
@@ -386,9 +519,6 @@
 					</section>
 					<section>
 						<img height="650" src="./demo/event.png">
-					</section>
-					<section>
-						<h3 style="text-transform:inherit">addEventListener和attachEvent</h3>
 					</section>
 				</section>
 				<section>
